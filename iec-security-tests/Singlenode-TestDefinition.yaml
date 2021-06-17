@@ -1,0 +1,16 @@
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: Singlenode-TestCases
+    description: "Validate IEC62443-4-2 Security Requirements"
+    version: "1.0"
+    os:
+        - oe
+    scope:
+        - iec-security
+    devices:
+        - kvm
+
+run:
+    steps:
+        - cd $(cd "$(dirname "$0")"; pwd)/iec-security-tests/singlenode-testcases/
+        - ./run_all.sh
