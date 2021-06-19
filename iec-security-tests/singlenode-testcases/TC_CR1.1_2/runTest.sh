@@ -18,10 +18,8 @@ preTest() {
 }
 
 runTest() {
-    IP_ADDR=$(get_Host_IP_addr)
-
     # Login and verify the username
-    user_name=$(sshpass -p "${USER1_PSWD}" ssh -o StrictHostKeyChecking=no ${USER1_NAME}@${IP_ADDR} "whoami")
+    user_name=$(sshpass -p "${USER1_PSWD}" ssh -o StrictHostKeyChecking=no ${USER1_NAME}@127.0.0.1 "whoami")
     if [ "$user_name" = "$USER1_NAME" ];then
 	    info_msg "PASS"
     else
