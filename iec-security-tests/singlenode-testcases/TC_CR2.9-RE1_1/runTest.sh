@@ -15,25 +15,20 @@ preTest() {
     check_root
     check_pkgs_installed "syslog-ng-core" "auditd"
 
-    # Configure audit storage values
-    # backup previous settings
-    sed -i 's/^num_logs =/###@num_logs =/' $AUDIT_CONF
-    sed -i 's/^max_log_file =/###@max_log_file =/' $AUDIT_CONF
-    sed -i 's/^max_log_file_action =/###@max_log_file_action =/' $AUDIT_CONF
-    sed -i 's/^space_left =/###@space_left =/' $AUDIT_CONF
-    sed -i 's/^space_left_action =/###@space_left_action =/' $AUDIT_CONF
-    sed -i 's/^admin_space_left =/###@admin_space_left =/' $AUDIT_CONF
-    sed -i 's/^admin_space_left_action =/###@admin_space_left_action =/' $AUDIT_CONF
+    # Backup the audit configuration file
+    cp $AUDIT_CONF auditd.conf.bkp
 
-    echo "num_logs = 1" >> $AUDIT_CONF
-    echo "max_log_file = 1" >> $AUDIT_CONF
-    echo "max_log_file_action = syslog" >> $AUDIT_CONF
-    echo "space_left = 20" >> $AUDIT_CONF
-    echo "space_left_action = syslog" >> $AUDIT_CONF
-    echo "admin_space_left = 10" >> $AUDIT_CONF
-    echo "admin_space_left_action = syslog" >> $AUDIT_CONF
+    # Configure audit storage values
+    sed -i 's/^num_logs =.*/num_logs = 1/' $AUDIT_CONF
+    sed -i 's/^max_log_file =.*/max_log_file = 1/' $AUDIT_CONF
+    sed -i 's/^max_log_file_action =.*/max_log_file_action = syslog/' $AUDIT_CONF
+    sed -i 's/^space_left =.*/space_left = 20/' $AUDIT_CONF
+    sed -i 's/^space_left_action =.*/space_left_action = syslog/' $AUDIT_CONF
+    sed -i 's/^admin_space_left =.*/admin_space_left = 10/' $AUDIT_CONF
+    sed -i 's/^admin_space_left_action =.*/admin_space_left_action = syslog/' $AUDIT_CONF
     
     # start audit service
+    auditctl -e 1
     service auditd restart
 }
 
@@ -70,35 +65,14 @@ runTest() {
 
 postTest() {
 
-    # restore previous configuration
-    if grep -q "^###@max_log_file =" $AUDIT_CONF; then
-        sed -i '/^max_log_file =/d' $AUDIT_CONF
-        sed -i 's/^###@max_log_file =/max_log_file =/' $AUDIT_CONF
-    fi
-    if grep -q "^###@max_log_file_action =" $AUDIT_CONF; then
-        sed -i '/^max_log_file_action =/d' $AUDIT_CONF
-        sed -i 's/^###@max_log_file_action =/max_log_file_action =/' $AUDIT_CONF
-    fi
-    if grep -q "^###@space_left =" $AUDIT_CONF; then
-        sed -i '/^space_left =/d' $AUDIT_CONF
-        sed -i 's/^###@space_left =/space_left =/' $AUDIT_CONF
-    fi
-    if grep -q "^###@space_left_action =" $AUDIT_CONF; then
-        sed -i '/^space_left_action =/d' $AUDIT_CONF
-        sed -i 's/^###@space_left_action =/space_left_action =/' $AUDIT_CONF
-    fi
-    if grep -q "^###@admin_space_left =" $AUDIT_CONF; then
-        sed -i '/^admin_space_left =/d' $AUDIT_CONF
-        sed -i 's/^###@admin_space_left =/admin_space_left =/' $AUDIT_CONF
-    fi
-    if grep -q "^###@admin_space_left_action =" $AUDIT_CONF; then
-        sed -i '/^admin_space_left_action =/d' $AUDIT_CONF
-        sed -i 's/^###@admin_space_left_action =/admin_space_left_action =/' $AUDIT_CONF
-    fi
+    # Restore the audit configuration file
+    [ -f auditd.conf.bkp ] && mv auditd.conf.bkp $AUDIT_CONF
 
     # stop audit service
     auditctl -D
+    auditctl -e 0
     service auditd stop
+    rm -f /var/log/audit/audit.log
 }
 
 # Main

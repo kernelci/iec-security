@@ -10,6 +10,7 @@ TEST_CASE_NAME="TC_CR2.8_1: Auditable events - categories"
 
 AUREPORT_ACC_CHANGES_FIELD="Number of changes to accounts, groups, or roles: "
 AUREPORT_CFG_CHANGES_FIELD="Number of changes in configuration: "
+AUDIT_CONF="/etc/audit/auditd.conf"
 
 preTest() {
     check_root
@@ -18,7 +19,20 @@ preTest() {
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
 
-    service auditd start
+    # Backup the audit configuration file
+    cp $AUDIT_CONF auditd.conf.bkp
+
+    # Configure audit storage values
+    sed -i 's/^num_logs =.*/num_logs = 5/' $AUDIT_CONF
+    sed -i 's/^max_log_file =.*/max_log_file = 1/' $AUDIT_CONF
+    sed -i 's/^max_log_file_action =.*/max_log_file_action = rotate/' $AUDIT_CONF
+    sed -i 's/^space_left =.*/space_left = 20/' $AUDIT_CONF
+    sed -i 's/^space_left_action =.*/space_left_action = syslog/' $AUDIT_CONF
+    sed -i 's/^admin_space_left =.*/admin_space_left = 10/' $AUDIT_CONF
+    sed -i 's/^admin_space_left_action =.*/admin_space_left_action = syslog/' $AUDIT_CONF
+
+    auditctl -e 1
+    service auditd restart
 }
 
 runTest() {
@@ -74,11 +88,15 @@ runTest() {
 postTest() {
     sed -i '/example.com/d' /etc/hosts
 
+    # Restore the audit configuration file
+    [ -f auditd.conf.bkp ] && mv auditd.conf.bkp $AUDIT_CONF
+
     # Delete the user that was created for the test
     del_user $USER1_NAME
 
     # Stop the audit service
     auditctl -D
+    auditctl -e 0
     service auditd stop
 }
 
@@ -90,7 +108,7 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
+
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
