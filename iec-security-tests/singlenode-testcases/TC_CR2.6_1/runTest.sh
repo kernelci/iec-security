@@ -36,8 +36,8 @@ runTest() {
     fi
 
     # Check remote session termination
-    msg=$(sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "sleep 6s" | cat)
-    if [ ! -z $msg ] && [ -z "${msg##*"closed by remote host"*}" ]; then
+    sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "sleep 6s" > output.log 2>&1 || echo
+    if grep -q "closed by remote host" output.log; then
         info_msg "Remote session is closed by host, after timeout"
     else
         error_msg "Remote session is not closed by host after timeout"
@@ -47,6 +47,8 @@ runTest() {
 }
 
 postTest() {
+
+    [ -f output.log ] && rm -f output.log
 
     # Restore previous configuration
     [ -f sshd_config.bkp ] && mv sshd_config.bkp $SSHD_CONFIG
