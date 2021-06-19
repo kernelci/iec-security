@@ -14,7 +14,7 @@ root_unlock_time=10 account     required      pam_tally2.so"
 
 preTest() {
     check_root
-    check_pkgs_installed "libpam-modules" "libpam-modules-bin"
+    check_pkgs_installed "libpam-modules" "libpam-modules-bin" "sshpass"
 
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
