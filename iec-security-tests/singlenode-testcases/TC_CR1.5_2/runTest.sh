@@ -56,7 +56,7 @@ runTest() {
     fi
 
     # Change the user password
-    new_paswd="$(openssl rand -base64 12)"
+    new_paswd="fgsT@623tD"
     if echo "$USER1_NAME:$new_paswd" | chpasswd ;then
         info_msg "User password is changed"
     else
