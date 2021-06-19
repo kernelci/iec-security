@@ -39,13 +39,14 @@ runTest() {
     for i in $(seq 1 $CONCURRENT_SESSIONS_ALLOWED);do
         sshpass -p ${USER1_PSWD} ssh -tt -o StrictHostKeyChecking=no ${USER1_NAME}@127.0.0.1 'whoami && sleep 5s' > output$i.txt &
         sleep 1s
-        ! grep -c "${USER1_NAME}" output$i.txt && error_exit "Concurrent connection failed"
+        ! grep -c "${USER1_NAME}" output$i.txt && error_msg "Concurrent connection failed"
+        info_msg "Connected to remote session $i"
     done
 
     # Verify if the concurrent session for more than a limit is Success or not
     sshpass -p ${USER1_PSWD} ssh -tt ${USER1_NAME}@127.0.0.1 'sleep 2s' > output.txt &
     sleep 1s
-    ! grep -c "Too many logins" output.txt && error_exit "Fail: Accepting concurrent sessions even after reaaching limit"
+    ! grep -c "Too many logins" output.txt && error_msg "Fail: Accepting concurrent sessions even after reaaching limit"
 
     info_msg "PASS"
 }
