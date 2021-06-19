@@ -87,6 +87,10 @@ postTest() {
 
     # remove aide configuration
     sed -i "/${TEST_FILE//\//\\/}/d" $AIDE_CONF_FILE
+
+    # Remove aide DB files
+    [ -f /var/lib/aide/aide.db.new ] && rm -f /var/lib/aide/aide.db.new
+    [ -f /var/lib/aide/aide.db ] && rm -f /var/lib/aide/aide.db
 }
 
 # Main

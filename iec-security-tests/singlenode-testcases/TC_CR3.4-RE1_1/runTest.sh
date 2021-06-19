@@ -76,6 +76,10 @@ postTest() {
     # Remove aide configuration
     sed -i "/${CONFIG_DATA//\//\\/}/d" $AIDE_CONF_FILE
 
+    # Remove aide DB files
+    [ -f /var/lib/aide/aide.db.new ] && rm -f /var/lib/aide/aide.db.new
+    [ -f /var/lib/aide/aide.db ] && rm -f /var/lib/aide/aide.db
+
     setfacl -nb ${AIDE_DB_FILE}
     setfacl -nb ${AIDE_CONF_FILE}
 
