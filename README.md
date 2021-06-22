@@ -18,7 +18,7 @@ e.g. Lava Definition for test block
     timeout:
       minutes: 20
     definitions:
-    - repository: https://gitlab.com/cip-playground/cip-security-tests.git
+    - repository: https://gitlab.com/cip-project/cip-testing/cip-security-tests.git
       from: git
       branch: master
       path: iec-security-tests/Singlenode-TestDefinition.yaml
