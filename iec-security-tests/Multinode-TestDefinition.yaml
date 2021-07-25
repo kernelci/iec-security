@@ -1,0 +1,21 @@
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: Multinode-TestCases
+    description: "Validate IEC62443-4-2 Security Requirements"
+    version: "1.0"
+    os:
+        - oe
+    scope:
+        - iec-security
+    devices:
+        - kvm
+
+run:
+    steps:
+        - echo $(lava-role)
+        - ip a
+        - export NET=${NET} UN=${UN} UN_PWD=${UN_PWD} SSH_PORT=${SSH_PORT} CHRONY_PORT=${CHRONY_PORT}
+        - lava-sync ready
+        - cd $(cd "$(dirname "$0")"; pwd)/iec-security-tests/multinode-testcases/
+        - ./run_$(lava-role).sh
+        - ./stop_comm_server.sh

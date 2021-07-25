@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# $1: key
+read_lava_multinode_resp(){
+        local value=$(cat /tmp/lava_multi_node_cache.txt | grep "$1" | cut -d = -f 2)
+        echo $value
+}
+
+# pack all arguments to a single string with ';' seperated
+pack_args(){
+        old="$IFS"
+        IFS=';'
+        str="$*"
+        echo "$str"
+        IFS=$old
+}
+
+# $1: message
+# $2: field
+parse_msg(){
+        echo $1 | cut -d';' -f$2
+}
+
+# Slave
+MSGID="msg0"
+SLAVE_RESP=""
+
+get_next_msgid(){
+        lava-wait msg-id
+        MSGID=$(read_lava_multinode_resp 'msgid')
+}
+
+# $1: message to slave
+send_msg_to_slave(){
+        msg=$(pack_args $@)
+        get_next_msgid
+        lava-send $MSGID msg="$msg"
+        lava-wait $MSGID-resp
+        SLAVE_RESP=$(read_lava_multinode_resp 'resp')
+}
+
+close_master_slave_comm(){
+        get_next_msgid
+        lava-send $MSGID msg="stop"
+        lava-send $MSGID-resp resp="stop"
+}
+
+# Master
+# The below functions should be called from single instance of shell script
+# TODO: The message id 'MSGID_IDX' should be stored in persistent storage if wanted use
+# this functionaility from different instances of shell script
+MASTER_MSG=""
+PREV_MSGID=""
+MSGID_IDX=0
+
+init_msgid(){
+        lava-send msg-id msgid="msg0"
+}
+
+wait_for_master_msg(){
+        local cur_msgid="msg$MSGID_IDX"
+        MSGID_IDX=`expr $MSGID_IDX + 1`
+        local next_msgid="msg$MSGID_IDX"
+        
+        lava-wait $cur_msgid
+        MASTER_MSG=$(read_lava_multinode_resp 'msg')
+        lava-send msg-id msgid="$next_msgid"
+        PREV_MSGID="$cur_msgid"
+}
+
+# $1: response message
+send_ack_to_master(){
+        msg=$(pack_args $@)
+        lava-send $PREV_MSGID-resp resp="$msg"
+}
+
+# Save remote server details in file
+REMOTE_SERVER_DETAILS_FILE="remote-server-details.conf"
+REMOTE_IP=""
+REMOTE_UN=""
+REMOTE_UN_PWD=""
+REMOTE_SSH_PORT=""
+REMOTE_CHRONY_PORT=""
+
+# $1: file path to save
+save_remote_server_details(){
+cat >$1 <<EOL
+REMOTE_IP:$REMOTE_IP
+REMOTE_UN:$REMOTE_UN
+REMOTE_UN_PWD:$REMOTE_UN_PWD
+REMOTE_SSH_PORT:$REMOTE_SSH_PORT
+REMOTE_CHRONY_PORT:$REMOTE_CHRONY_PORT
+EOL
+        echo "Save remote server details to file $1"
+        cat $1
+}
+
+# $1: file path to read
+read_remote_server_details(){
+        [ -f $1 ] || exit 1
+        REMOTE_IP=$(sed -n '/REMOTE_IP:/p' $1 | cut -d: -f2)
+        REMOTE_UN=$(sed -n '/REMOTE_UN:/p' $1 | cut -d: -f2)
+        REMOTE_UN_PWD=$(sed -n '/REMOTE_UN_PWD:/p' $1 | cut -d: -f2)
+        REMOTE_SSH_PORT=$(sed -n '/REMOTE_SSH_PORT:/p' $1 | cut -d: -f2)
+        REMOTE_CHRONY_PORT=$(sed -n '/REMOTE_CHRONY_PORT:/p' $1 | cut -d: -f2)
+}
