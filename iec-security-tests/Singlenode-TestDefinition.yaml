@@ -12,5 +12,6 @@ metadata:
 
 run:
     steps:
+        - export SKIP_TESTS="${SKIP_TESTS}"
         - cd $(cd "$(dirname "$0")"; pwd)/iec-security-tests/singlenode-testcases/
         - ./run_all.sh

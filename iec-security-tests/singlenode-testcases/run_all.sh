@@ -8,7 +8,7 @@ if [ -f ${RESULT_FILE} ]; then
 else
 	touch ${RESULT_FILE}
 fi
-
+echo "skip test: $SKIP_TESTS"
 for f in *;
 do
     [ ! -d ${CURPATH}/${f} ] && continue
@@ -16,7 +16,9 @@ do
     dir=${f}
     echo $dir
     cd ${CURPATH}/${dir}
-    if [ -f ./runTest.sh ]; then
+    if echo "$SKIP_TESTS" | grep -qw "$dir";then
+        res="skip"
+    elif [ -f ./runTest.sh ]; then
 	    eval ./runTest.sh init && eval ./runTest.sh run
 	    [ $? -eq 0 ] && res="pass" || res="fail"
 	    eval ./runTest.sh clean
