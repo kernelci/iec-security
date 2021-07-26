@@ -28,36 +28,42 @@ preTest() {
     sed -i 's/^admin_space_left_action =.*/admin_space_left_action = syslog/' $AUDIT_CONF
     
     # start audit service
-    auditctl -e 1
     service auditd restart
 }
 
 runTest() {
 
+    log_msg="start-test-$(date +%s)"
+    logger "$log_msg"
+
+    avail_space=$(df --output=avail /var | tail -1)
+    threshold_value=$((avail_space-4096))
+    info_msg "Available space: $avail_space"
+    if [ $threshold_value -lt 5120 ]; then
+        error_msg "The available free space is very low to perform test"
+    fi
+
+    info_msg "Configure audit storage threshold value: $threshold_value"
+    sed -i "s/^space_left =.*/space_left = $threshold_value/" $AUDIT_CONF
+    service auditd restart
+
+    info_msg "Fill up the storage to reach threshold value"
+    dd if=/dev/zero of=file_5mb bs=5MB count=1
+
     # add audit rules to fill the audit storage
     auditctl -D
     auditctl -w /etc/passwd -p r -k control-system-event
     auditctl -a always,exit -F arch=b64 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -k file_access_denied
-
+    cat /etc/passwd > /dev/null
     # trigger audit events
-    log_msg="start-test-$(date +%s)"
-    logger "$log_msg"
-    while true; do
-        cat /etc/passwd > /dev/null
-        audit_size=$(ls -l /var/log/audit/audit.log | awk '/audit.log$/ {print $5}')
-        if [ $audit_size -gt 1048576 ];then
-            break
-        fi
-    done
-    echo "audit_size: $audit_size"
 
     sleep 1s
-    audit_failure_msg="Audit daemon log file is larger than max size"
+    audit_failure_msg="Audit daemon is low on disk space for logging"
     log_msg_cnt=$(sed -n "/$log_msg/,/$audit_failure_msg/p" $SYSLOG | wc -l)
     if [ $log_msg_cnt -gt 1 ]; then
-        info_msg "Warning message sent when Audit storage capacity is exceeded"
+        info_msg "Warning message is sent to syslog when audit storage threshold is reached"
     else
-        error_msg "FAIL: Not recieved warning message of Audit storage capacity is exceeded"
+        error_msg "FAIL: Not recieved warning message of Audit storage threshold is reached"
     fi
 
     info_msg "PASS"  
@@ -68,9 +74,10 @@ postTest() {
     # Restore the audit configuration file
     [ -f auditd.conf.bkp ] && mv auditd.conf.bkp $AUDIT_CONF
 
+    [ -f file_5mb ] && rm file_5mb
+
     # stop audit service
     auditctl -D
-    auditctl -e 0
     service auditd stop
     rm -f /var/log/audit/audit.log
 }
