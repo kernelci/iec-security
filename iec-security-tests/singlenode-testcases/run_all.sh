@@ -16,6 +16,7 @@ do
     dir=${f}
     echo $dir
     cd ${CURPATH}/${dir}
+    START=$(date +%s)
     if echo "$SKIP_TESTS" | grep -qw "$dir";then
         res="skip"
     elif [ -f ./runTest.sh ]; then
@@ -23,7 +24,9 @@ do
 	    [ $? -eq 0 ] && res="pass" || res="fail"
 	    eval ./runTest.sh clean
     fi
-    echo "${dir}+$res" >> ${CURPATH}/${RESULT_FILE}
+    END=$(date +%s)
+    DIFF=$(( $END - $START ))
+    echo "${dir}+$res+$DIFF" >> ${CURPATH}/${RESULT_FILE}
     which lava-test-case > /dev/null && lava-test-case ${dir} --result $res
 done
 
