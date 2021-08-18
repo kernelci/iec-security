@@ -25,7 +25,7 @@ runTest() {
     else
         error_msg "FAIL: Accessing '/etc/shadow' is not restricted"
     fi
-    
+
     # Verify changing the password from unprivilaged user
     if ! echo "$USER1_PSWD" | su - $USER1_NAME -c "echo 'newpwd' | passwd $USER2_NAME"; then
         info_msg "Unable to Change password from unprivilaged user"
@@ -50,13 +50,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"

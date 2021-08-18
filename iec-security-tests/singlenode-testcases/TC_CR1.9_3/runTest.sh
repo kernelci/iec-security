@@ -103,8 +103,7 @@ case "$1" in
         echo ""
         echo "preTest: $TEST_CASE_NAME"
         preTest
-        ;;
-    
+        ;; 
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"

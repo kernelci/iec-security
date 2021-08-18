@@ -33,7 +33,7 @@ runTest() {
         info_msg "Create ssh key pair for $USER2_NAME"
     else
         error_msg "FAIL: Unable to create ssh key pair for $USER2_NAME"
-    fi                            
+    fi
 
     ls -al /home/$USER1_NAME/.ssh/id_rsa | \
         awk 'id_rsa' | \
@@ -64,13 +64,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"

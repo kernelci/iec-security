@@ -1,6 +1,6 @@
 #!/bin/bash
 # TC_CR1.8_1: Validate Authentication with public key infrastructure
-# 
+#
 
 set -e
 . ../../lib/common-lib
@@ -64,13 +64,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"

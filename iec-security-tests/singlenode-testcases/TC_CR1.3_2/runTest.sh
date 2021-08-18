@@ -28,7 +28,7 @@ runTest() {
             info_msg "PASS"
         else
             error_msg "FAIL: Cannot login to changed user account"
-        fi       
+        fi
     else
         error_msg "FAIL: Cannot change user account details"
     fi
@@ -48,13 +48,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"

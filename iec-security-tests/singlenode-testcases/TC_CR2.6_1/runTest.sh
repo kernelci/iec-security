@@ -18,7 +18,7 @@ preTest() {
 
     # Configure ssh for remote session termination
     sed -i "/ClientAliveInterval/c ClientAliveInterval 5"  "${SSHD_CONFIG}"
-	sed -i "/ClientAliveCountMax/c ClientAliveCountMax 1" "${SSHD_CONFIG}"
+    sed -i "/ClientAliveCountMax/c ClientAliveCountMax 1" "${SSHD_CONFIG}"
     service sshd restart
 
     # Create the users for the test case
@@ -67,13 +67,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"

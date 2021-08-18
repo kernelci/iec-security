@@ -2,7 +2,7 @@
 # Security Test case
 # TC_CR1.4_1: Identifier management
 #
-# Validate Deny creating human user accounts  with user name and 
+# Validate Deny creating human user accounts  with user name and
 # uid which already exists
 
 set -e
@@ -51,7 +51,6 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"

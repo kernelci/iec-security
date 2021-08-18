@@ -19,11 +19,11 @@ preTest() {
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
 
-	info_msg "Start nftables service"
-	service nftables start
+    info_msg "Start nftables service"
+    service nftables start
 
-	info_msg "Add a firewall rule"
-	nft add rule inet filter input "${FIREWALL_RULE}"
+    info_msg "Add a firewall rule"
+    nft add rule inet filter input "${FIREWALL_RULE}"
 }
 
 runTest() {
@@ -51,12 +51,12 @@ postTest() {
     # Delete the user that was created for the test
     del_user $USER1_NAME
 
-	info_msg "Delete the firewall rule"
-	for i in $(nft --handle --numeric list chain inet filter input | grep "${FIREWALL_RULE}"| awk -F '# handle ' '{print $2}')
-	do
-		echo "delete handle number ${i}"
-		! nft delete rule inet filter input handle "${i}" && echo "failed to delete rule"
-	done
+    info_msg "Delete the firewall rule"
+    for i in $(nft --handle --numeric list chain inet filter input | grep "${FIREWALL_RULE}"| awk -F '# handle ' '{print $2}')
+    do
+        echo "delete handle number ${i}"
+        ! nft delete rule inet filter input handle "${i}" && echo "failed to delete rule"
+    done
 
     # Stop nftables service
     service nftables stop
@@ -70,13 +70,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"

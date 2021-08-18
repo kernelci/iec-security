@@ -14,16 +14,16 @@ preTest() {
     check_pkgs_installed "passwd" "login" "openssh-server" "openssh-client" "sshpass"
 
     # Create users required for the test
-    create_test_user $USER1_NAME $USER1_PSWD 
+    create_test_user $USER1_NAME $USER1_PSWD
 }
 
 runTest() {
     # Login and verify the username
     user_name=$(sshpass -p "${USER1_PSWD}" ssh -o StrictHostKeyChecking=no ${USER1_NAME}@127.0.0.1 "whoami")
     if [ "$user_name" = "$USER1_NAME" ];then
-	    info_msg "PASS"
+        info_msg "PASS"
     else
-	    error_msg "FAIL: Cannot authenticate local user account"
+        error_msg "FAIL: Cannot authenticate local user account"
     fi
 }
 
@@ -40,13 +40,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"

@@ -14,7 +14,7 @@ preTest() {
     check_pkgs_installed "passwd" "login"
 
     # Create users required for the test
-    create_test_user $USER1_NAME $USER1_PSWD 
+    create_test_user $USER1_NAME $USER1_PSWD
 }
 
 runTest() {
@@ -40,13 +40,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"
