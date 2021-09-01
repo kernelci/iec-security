@@ -8,9 +8,22 @@ set -e
 
 TEST_CASE_NAME="TC_CR1.11_1: Unsuccessful login attempts - limit number"
 
+# pam_tally2 is deprecated from pam 1.4.0-7
+if [ -f /lib/*-linux-gnu*/security/pam_tally2.so ]; then
+    PAM_TALLY_MODULE="pam_tally2.so"
+    PAM_TALLY_CONFIG="auth   required $PAM_TALLY_MODULE deny=3 unlock_time=60 \
+                        \naccount required $PAM_TALLY_MODULE"
+    PAM_TALLY_BIN="pam_tally2"
+elif [ -f /lib/*-linux-gnu*/security/pam_faillock.so ]; then
+    PAM_TALLY_MODULE="pam_faillock.so"
+    PAM_TALLY_CONFIG="auth required $PAM_TALLY_MODULE preauth silent deny=3 unlock_time=60 \
+                    \nauth required $PAM_TALLY_MODULE authfail deny=3 unlock_time=60"
+    PAM_TALLY_BIN="faillock"
+else
+	echo "No suitable pam module found to lock failed login attempts"
+fi
+
 PAM_FILE="/etc/pam.d/common-auth"
-pam_tally="auth   required  pam_tally2.so  deny=3 even_deny_root unlock_time=60 \
-root_unlock_time=60 account     required      pam_tally2.so"
 
 preTest() {
     check_root
@@ -20,9 +33,14 @@ preTest() {
     create_test_user $USER1_NAME $USER1_PSWD
     create_test_user $USER2_NAME $USER2_PSWD
 
-    # If pam_craclib already configured, comment that temporarily
-    sed -i '/pam_tally2.so/ s/^/#/' $PAM_FILE
+    # Take backup of pam configuration
+    cp $PAM_FILE pam-common-auth.bkp
 
+    # If pam_craclib already configured, comment that temporarily
+    sed -i "/${PAM_TALLY_MODULE}/ s/^/#/" "${PAM_FILE}"
+
+    # configure pam to lock user accounts after 3 failed login attempt
+    sed -i "0,/^auth.*/s/^auth.*/${PAM_TALLY_CONFIG}\n&/" "${PAM_FILE}"
 }
 
 runTest() {
@@ -30,11 +48,8 @@ runTest() {
     user1_successful_login="echo '$USER1_PSWD' | su - '$USER1_NAME' -c \"whoami\""
     user1_unsuccessful_login="echo '$wrong_pwd\n$wrong_pwd\n$wrong_pwd' | su - '$USER1_NAME' -c \"whoami\""
 
-    # configure pam to lock user accounts after 3 failed login attempt
-    sed -i "0,/^auth.*/s/^auth.*/${pam_tally}\n&/" "${PAM_FILE}"
-
     # Reset the attempts counter.
-    pam_tally2 --user "${USER1_NAME}" --reset
+    $PAM_TALLY_BIN --user "${USER1_NAME}" --reset
 
     # check if account is login successful
     msg=$(echo $USER2_PSWD | su - $USER2_NAME -c "$user1_successful_login")
@@ -54,7 +69,7 @@ runTest() {
         fi
     done
 
-    pam_tally2 --user "${USER1_NAME}"
+    $PAM_TALLY_BIN --user "${USER1_NAME}"
 
     # check if account is locked due to unsuccessful login attempts
     msg=$(echo $USER2_PSWD | su - $USER2_NAME -c "$user1_successful_login | cat")
@@ -68,13 +83,11 @@ runTest() {
 }
 
 postTest() {
-    # remove the configuration of lock user account for unsuccessful login attempts
-    sed -i "0,/${pam_tally}/d" "${PAM_FILE}"
 
-    # uncomment the configuration that was commented in preTest
-     sed -i '/pam_tally2.so/ s/^#//' $PAM_FILE
+    # Restore the previous configuration
+    mv pam-common-auth.bkp $PAM_FILE
 
-    pam_tally2 --user "${USER1_NAME}" --reset
+    $PAM_TALLY_BIN --user "${USER1_NAME}" --reset
 
     # delete the user created in the test
     del_user $USER1_NAME
@@ -94,7 +107,6 @@ case "$1" in
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"
