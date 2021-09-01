@@ -12,7 +12,7 @@ read_remote_server_details "../$REMOTE_SERVER_DETAILS_FILE"
 CHRONY_CONF="/etc/chrony/chrony.conf"
 
 if [ "$1" = "init" ]; then
-	info_msg "Configure Remote machine as a NTP time server"
+    info_msg "Configure Remote machine as a NTP time server"
 
     # Take backup of configuration
     cp ${CHRONY_CONF} ./chrony.conf.bkp
@@ -27,7 +27,7 @@ if [ "$1" = "init" ]; then
 
 elif [ "$1" = "stop" ]; then
     info_msg "clean chrony "
-	echo "Remove Ntp time server configuration"
+    echo "Remove Ntp time server configuration"
     #Restore configuration
     [ -f chrony.conf.bkp ] && mv chrony.conf.bkp ${CHRONY_CONF}
 
