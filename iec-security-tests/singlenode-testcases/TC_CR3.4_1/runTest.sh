@@ -25,6 +25,12 @@ preTest() {
     [ ! -f $TEST_FILE ] && touch $TEST_FILE
     echo $TEST_FILE_DATA > $TEST_FILE
 
+    # Backup original configuration
+    cp $AIDE_CONF_FILE aide.conf.bkp
+
+    # Disable including all aide.conf.d/*
+    sed -i "/^@@x_include/ s/^#*/#/" "${AIDE_CONF_FILE}"
+
 	# Add the application file to aide integrity check
 	if [ ! $(grep -q "$TEST_FILE  VarFile"  ${AIDE_CONF_FILE}) ];then
 		echo "$TEST_FILE  VarFile" >> "${AIDE_CONF_FILE}"
@@ -41,7 +47,7 @@ preTest() {
 
 runTest() {
 
-    # check any differences found 
+    # check any differences found
     aide_check=$(aide -c $AIDE_CONF_FILE -C | cat)
     if echo "$aide_check" | grep -q "$AIDE_FOUND_NO_DIFF_MSG"; then
         info_msg "Found no differences in aide check"
@@ -71,12 +77,8 @@ postTest() {
     # Remove sample contents created
     rm -rf $SAMPLE_APP_DIR
 
-    # Remove aide configuration
-    sed -i "/${TEST_FILE//\//\\/}/d" $AIDE_CONF_FILE
-
-    # Remove aide DB files
-    [ -f /var/lib/aide/aide.db.new ] && rm -f /var/lib/aide/aide.db.new
-    [ -f /var/lib/aide/aide.db ] && rm -f /var/lib/aide/aide.db
+    # restore original aide configuration
+    mv aide.conf.bkp $AIDE_CONF_FILE
 }
 
 # Main

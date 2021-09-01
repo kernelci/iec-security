@@ -20,6 +20,12 @@ preTest() {
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
 
+    # Backup original configuration
+    cp $AIDE_CONF_FILE aide.conf.bkp
+
+    # Disable including all aide.conf.d/*
+    sed -i "/^@@x_include/ s/^#*/#/" "${AIDE_CONF_FILE}"
+
     # Create the aide database file
     if aide -c "${AIDE_CONF_FILE}" --init > /dev/null ;then
         mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
@@ -34,7 +40,6 @@ runTest() {
     # The authenticity of the data after integrity check can be Verified 
     # by checking the authenticity of the aide software and the its configuration
 
-    
     # check if aide configuration file can be accessed by unautherized user
     if ! echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
                             >> $AIDE_CONF_FILE"; then
@@ -73,15 +78,12 @@ runTest() {
 }
 
 postTest() {
-    # Remove aide configuration
-    sed -i "/${CONFIG_DATA//\//\\/}/d" $AIDE_CONF_FILE
-
-    # Remove aide DB files
-    [ -f /var/lib/aide/aide.db.new ] && rm -f /var/lib/aide/aide.db.new
-    [ -f /var/lib/aide/aide.db ] && rm -f /var/lib/aide/aide.db
 
     setfacl -nb ${AIDE_DB_FILE}
     setfacl -nb ${AIDE_CONF_FILE}
+
+    # restore original aide configuration
+    mv aide.conf.bkp $AIDE_CONF_FILE
 
     # Delete the user that was created for the test
     del_user $USER1_NAME
