@@ -61,7 +61,7 @@ wait_for_master_msg(){
         local cur_msgid="msg$MSGID_IDX"
         MSGID_IDX=`expr $MSGID_IDX + 1`
         local next_msgid="msg$MSGID_IDX"
-        
+
         lava-wait $cur_msgid
         MASTER_MSG=$(read_lava_multinode_resp 'msg')
         lava-send msg-id msgid="$next_msgid"

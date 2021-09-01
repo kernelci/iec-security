@@ -22,18 +22,18 @@ preTest() {
 
 runTest() {
 
-	# Check IP is banned
-	fail2ban-client status sshd
-	if [ "${REMOTE_IP}" = "$(fail2ban-client status sshd | sed -n '$p' | cut -f2)" ];then
-		info_msg "already ${REMOTE_IP} is banned, unban"
-		fail2ban-client set sshd unbanip "${REMOTE_IP}"
-	fi
+    # Check IP is banned
+    fail2ban-client status sshd
+    if [ "${REMOTE_IP}" = "$(fail2ban-client status sshd | sed -n '$p' | cut -f2)" ];then
+        info_msg "already ${REMOTE_IP} is banned, unban"
+        fail2ban-client set sshd unbanip "${REMOTE_IP}"
+    fi
 
     info_msg "Requsting remote device to attempt wrong login attempts"
     send_msg_to_slave $TEST_CASE_ID "do_failed_login_attempts"
     fail2ban-client status sshd
     if [ "${REMOTE_IP}" = "$(fail2ban-client status sshd | sed -n '$p' | cut -f2)" ];then
-		info_msg "${REMOTE_IP} is banned"
+        info_msg "${REMOTE_IP} is banned"
     else
         error_msg "Failed: Can not ban the ip address"
     fi
@@ -54,13 +54,11 @@ case "$1" in
         echo "preTest: $TEST_CASE_NAME"
         preTest
         ;;
-    
     "run")
         echo ""
         echo "runTest: $TEST_CASE_NAME"
         runTest
         ;;
-
     "clean")
         echo ""
         echo "postTest: $TEST_CASE_NAME"
