@@ -1,8 +1,16 @@
 #!/bin/bash
 
+. ../lib/common-variables
 . ../lib/multinode-comm-lib
 
 CURPATH=`pwd`
+
+# Default values
+: "${NET:=user}"
+: "${SSH_PORT:=5577}"
+: "${UN:=$USER1_NAME}"
+: "${UN_PWD:=$USER1_PSWD}"
+: "${CHRONY_PORT:=6644}"
 
 execute_slave_script(){
     msg=$1
@@ -37,7 +45,7 @@ while true; do
                 ip link set enp0s2 up && ip addr
                 IP_ADDR="$(ip addr | grep "state UP" -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')"
             fi
-            send_ack_to_master $IP_ADDR $USER $PASSWORD $SSH_PORT $CHRONY_PORT
+            send_ack_to_master $IP_ADDR $UN $UN_PWD $SSH_PORT $CHRONY_PORT
             ;;
         "stop")
             echo "Master request to stop"

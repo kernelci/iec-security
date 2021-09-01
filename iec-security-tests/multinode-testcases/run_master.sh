@@ -1,7 +1,14 @@
 #!/bin/bash
 
+. ../lib/common-variables
 . ../lib/multinode-comm-lib
 CURPATH=`pwd`
+
+# Default values
+: "${NET:=user}"
+: "${SSH_PORT:=5555}"
+: "${UN:=$USER1_NAME}"
+: "${UN_PWD:=$USER1_PSWD}"
 
 # Send master details to slave
 if [ "$NET" = "user" ]; then
@@ -10,7 +17,7 @@ else
 	ip link set enp0s2 up && ip addr
 	IP_ADDR="$(ip addr | grep "state UP" -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')"
 fi
-send_msg_to_slave "master_details" "$IP_ADDR" "$USER" "$PASSWORD" "$SSH_PORT"
+send_msg_to_slave "master_details" "$IP_ADDR" "$UN" "$UN_PWD" "$SSH_PORT"
 
 # Get slave details
 send_msg_to_slave "get_slave_details"
