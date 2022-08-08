@@ -20,6 +20,10 @@ preTest() {
 
     # Create temporary directory for the ssh keys
     mkdir $tmp_dir
+    # commenting out keyboard-interactive string in sshd_config file to validate public key infrastruture Test-Case
+    sed -i '/^AuthenticationMethods keyboard-interactive$/s/^/#/' $sshd_config
+    # restart the ssh service
+    service sshd restart
 }
 
 runTest() {
@@ -54,6 +58,11 @@ postTest() {
 
     # delete the user created in the test
     del_user $USER1_NAME
+
+    # uncommenting keyboard-interactive string in sshd_config file after validating public key infrastruture Test-Case
+    sed '/AuthenticationMethods keyboard-interactive/s/^#//g' -i $sshd_config
+    # restart the ssh service
+    service sshd restart
 }
 
 # Main
