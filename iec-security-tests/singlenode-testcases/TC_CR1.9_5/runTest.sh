@@ -31,6 +31,7 @@ preTest() {
     echo "AuthorizedPrincipalsFile /etc/ssh/principals" >> $sshd_config
     touch /etc/ssh/revoked_keys
     echo "RevokedKeys /etc/ssh/revoked_keys" >> $sshd_config
+    sed -i '/^AuthenticationMethods keyboard-interactive$/s/^/#/' $sshd_config
     service sshd restart
 
     # Create the users for the test case
@@ -115,6 +116,7 @@ postTest() {
     sed -i '/^TrustedUserCAKeys/d' $sshd_config
     sed -i '/^AuthorizedPrincipalsFile/d' $sshd_config
     sed -i '/^RevokedKeys/d' $sshd_config
+    sed '/AuthenticationMethods keyboard-interactive/s/^#//g' -i $sshd_config
     service sshd restart
 
     # delete the user created in the test
