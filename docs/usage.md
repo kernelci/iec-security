@@ -20,7 +20,7 @@ CIP security tests are implemented in three sections
 ## Run tests
 cip-security-tests can be executed either by using Lava lab or in local machine.
 - To test using Lava lab please follow the [README](README.md).
-- To test in local machine please follow the steps [here](TODO: Reference link to add once it is available)
+- To test in local machine please follow the steps [here](https://gitlab.com/cip-project/cip-core/isar-cip-core/-/blob/master/doc/README.security-testing.md)
 
 ## Configuration
 For some of the security requirements a pre-configuration is applied in the security image in order enable them with default values.
