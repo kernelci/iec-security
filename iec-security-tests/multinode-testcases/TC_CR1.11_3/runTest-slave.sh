@@ -16,6 +16,6 @@ if [ "$1" == "do_failed_login_attempts" ]; then
     do
             i=$(($i+1))
             echo "attempt failed login ip = $REMOTE_IP port = $REMOTE_SSH_PORT $i"
-            sshpass -p "wrong_pwd" ssh -o StrictHostKeyChecking=no -p ${REMOTE_SSH_PORT} ${REMOTE_UN}@${REMOTE_IP} 'whoami' | true
+            sshpass -p "wrong_pwd" ssh -o StrictHostKeyChecking=no -p ${REMOTE_SSH_PORT} ${REMOTE_UN}@${REMOTE_IP} 'whoami' || true
     done  
 fi
