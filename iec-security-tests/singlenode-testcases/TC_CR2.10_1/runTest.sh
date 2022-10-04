@@ -51,7 +51,7 @@ runTest() {
     # trigger audit events to increase the audit log size greater than max_log_file size
     while true; do
         cat /etc/passwd > /dev/null
-        audit_size=$(ls -l /var/log/audit/audit.log | awk '/audit.log$/ {print $5}')
+        audit_size=$(du -b /var/log/audit/audit.log | awk '{print $1}')
         if [ $audit_size -gt 1310720 ];then
             break
         fi
