@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . ../lib/multinode-comm-lib
-CURPATH=`pwd`
+CURPATH=$(pwd)
 
 echo "Remote ip addr: $SERVER_IP"
 echo "Remote username: $SERVER_UN"

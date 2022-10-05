@@ -3,7 +3,7 @@
 . ../lib/common-variables
 . ../lib/multinode-comm-lib
 
-CURPATH=`pwd`
+CURPATH=$(pwd)
 
 # Default values
 : "${NET:=user}"

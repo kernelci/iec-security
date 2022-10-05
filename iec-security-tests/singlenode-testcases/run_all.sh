@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CURPATH=`pwd`
+CURPATH=$(pwd)
 
 RESULT_FILE="./result_file.txt"
 if [ -f ${RESULT_FILE} ]; then

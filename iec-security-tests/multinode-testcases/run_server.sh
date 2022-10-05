@@ -11,7 +11,7 @@
 #SERVER_UN="skelios"
 #SERVER_UN_PWD="IEC-62443"
 #SERVER_SSH_PORT=""
-CURPATH=`pwd`
+CURPATH=$(pwd)
 
 echo "client ip addr: $CLIENT_IP"
 echo "client ssh port: $CLIENT_SSH_PORT"

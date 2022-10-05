@@ -60,7 +60,7 @@ init_msgid(){
 
 wait_for_master_msg(){
         local cur_msgid="msg$MSGID_IDX"
-        MSGID_IDX=`expr $MSGID_IDX + 1`
+        MSGID_IDX=$(expr $MSGID_IDX + 1)
         local next_msgid="msg$MSGID_IDX"
 
         lava-wait $cur_msgid
