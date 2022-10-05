@@ -29,7 +29,7 @@ execute_server_script(){
 
     res="fail"
     if [ -f ${CURPATH}/$testcase_id/runTest-server.sh ];then
-        cd ${CURPATH}/$testcase_id
+        cd ${CURPATH}/$testcase_id || exit
         eval ./runTest-server.sh "$testcase_arg" && res="success"
     fi
 }

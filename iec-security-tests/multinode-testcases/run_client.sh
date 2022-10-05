@@ -21,7 +21,7 @@ for dir in *;
 do
 	[ ! -d ${CURPATH}/${dir} ] && continue
 	echo $dir
-	cd ${CURPATH}/${dir}
+	cd ${CURPATH}/${dir} || exit
 	res="skip"
     if echo "$SKIP_TESTS" | grep -qw "$dir";then
         res="skip"

@@ -15,7 +15,7 @@ do
     res="skip"
     dir=${f}
     echo $dir
-    cd ${CURPATH}/${dir}
+    cd ${CURPATH}/${dir} || exit
     START=$(date +%s)
     if echo "$SKIP_TESTS" | grep -qw "$dir";then
         res="skip"
