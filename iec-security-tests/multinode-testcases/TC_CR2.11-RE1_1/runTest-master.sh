@@ -36,7 +36,7 @@ runTest() {
     chronyc sources -a | cat
 
     info_msg "Change the time in DUT to some different time"
-    ch_date=$(date -s "$(date | sed "s/$(date +"%Y")/$(expr $(date +"%Y") + 10)/g")")
+    ch_date=$(date -s "$(date | sed "s/$(date +"%Y")/$(( $(date +"%Y") + 10 ))/g")")
     echo "modified date  "${ch_date}""
     ch_year="$(date +"%Y")"
     echo $ch_year
