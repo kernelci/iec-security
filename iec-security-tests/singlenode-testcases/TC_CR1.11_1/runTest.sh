@@ -9,18 +9,22 @@ set -e
 TEST_CASE_NAME="TC_CR1.11_1: Unsuccessful login attempts - limit number"
 
 # pam_tally2 is deprecated from pam 1.4.0-7
-if [ -f /lib/*-linux-gnu*/security/pam_tally2.so ]; then
+pam_tally2=( /lib/*-linux-gnu*/security/pam_tally2.so )
+if [ -f "${pam_tally2[0]}" ]; then
     PAM_TALLY_MODULE="pam_tally2.so"
     PAM_TALLY_CONFIG="auth   required $PAM_TALLY_MODULE deny=3 unlock_time=60 \
                         \naccount required $PAM_TALLY_MODULE"
     PAM_TALLY_BIN="pam_tally2"
-elif [ -f /lib/*-linux-gnu*/security/pam_faillock.so ]; then
-    PAM_TALLY_MODULE="pam_faillock.so"
-    PAM_TALLY_CONFIG="auth required $PAM_TALLY_MODULE preauth silent deny=3 unlock_time=60 \
-                    \nauth required $PAM_TALLY_MODULE authfail deny=3 unlock_time=60"
-    PAM_TALLY_BIN="faillock"
 else
-	echo "No suitable pam module found to lock failed login attempts"
+    pam_faillock=( /lib/*-linux-gnu*/security/pam_faillock.so )
+    if [ -f "${pam_faillock[0]}" ]; then
+        PAM_TALLY_MODULE="pam_faillock.so"
+        PAM_TALLY_CONFIG="auth required $PAM_TALLY_MODULE preauth silent deny=3 unlock_time=60 \
+                        \nauth required $PAM_TALLY_MODULE authfail deny=3 unlock_time=60"
+        PAM_TALLY_BIN="faillock"
+    else
+        echo "No suitable pam module found to lock failed login attempts"
+    fi
 fi
 
 PAM_FILE="/etc/pam.d/common-auth"
