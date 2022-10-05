@@ -36,7 +36,7 @@ preTest() {
     echo "report_url=stdout" >> "${AIDE_CONF_FILE}"
 
 	# Add the application file to aide integrity check
-	if [ ! $(grep -q "$TEST_FILE  VarFile"  ${AIDE_CONF_FILE}) ];then
+	if ! grep -q "$TEST_FILE  VarFile"  ${AIDE_CONF_FILE};then
 		echo "$TEST_FILE  VarFile" >> "${AIDE_CONF_FILE}"
 	fi
 
