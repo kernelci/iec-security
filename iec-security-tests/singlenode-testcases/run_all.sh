@@ -24,7 +24,7 @@ do
         eval ./runTest.sh clean
     fi
     END=$(date +%s)
-    DIFF=$(( $END - $START ))
+    DIFF=$(( END - START ))
     echo "${dir}+$res+$DIFF" >> ${CURPATH}/${RESULT_FILE}
     which lava-test-case > /dev/null && lava-test-case ${dir} --result $res
 done
