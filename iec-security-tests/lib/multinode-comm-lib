@@ -33,7 +33,7 @@ get_next_msgid(){
 
 # $1: message to slave
 send_msg_to_slave(){
-        msg=$(pack_args $@)
+        msg=$(pack_args "$@")
         get_next_msgid
         lava-send $MSGID msg="$msg"
         lava-wait $MSGID-resp
@@ -71,7 +71,7 @@ wait_for_master_msg(){
 
 # $1: response message
 send_ack_to_master(){
-        msg=$(pack_args $@)
+        msg=$(pack_args "$@")
         lava-send $PREV_MSGID-resp resp="$msg"
 }
 
