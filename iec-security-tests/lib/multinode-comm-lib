@@ -2,7 +2,8 @@
 
 # $1: key
 read_lava_multinode_resp(){
-        local value=$(cat /tmp/lava_multi_node_cache.txt | grep "$1" | cut -d = -f 2)
+        local value
+        value=$(< /tmp/lava_multi_node_cache.txt grep "$1" | cut -d = -f 2)
         echo $value
 }
 
