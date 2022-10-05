@@ -79,7 +79,7 @@ del_user() {
 		while [ $i -lt 30 ]; do
 			if ps -U "${USER}" -u "${USER}" > /dev/null;then
 				warn_msg "${USER} is used by another process:"
-				echo "$(ps -U ${USER} -u ${USER})"
+				ps -U ${USER} -u ${USER}
 			else
 				TIMEOUT=0
 				break
