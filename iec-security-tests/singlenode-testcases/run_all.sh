@@ -20,8 +20,7 @@ do
     if echo "$SKIP_TESTS" | grep -qw "$dir";then
         res="skip"
     elif [ -f ./runTest.sh ]; then
-        eval ./runTest.sh init && eval ./runTest.sh run
-        [ $? -eq 0 ] && res="pass" || res="fail"
+        eval ./runTest.sh init && eval ./runTest.sh run && res="pass" || res="fail"
         eval ./runTest.sh clean
     fi
     END=$(date +%s)

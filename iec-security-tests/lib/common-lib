@@ -31,8 +31,7 @@ check_root() {
 check_pkgs_installed() {
 	pkgs="$*"
 	for pkg in ${pkgs};do
-		dpkg -s "${pkg}" >/dev/null
-		if [ $? -eq 0 ]; then
+		if dpkg -s "${pkg}" >/dev/null; then
 			info_msg "${pkg} Package  is installed!"
 		else
 			warn_msg "${pkg} Package  is NOT installed!"

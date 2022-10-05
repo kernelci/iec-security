@@ -20,8 +20,7 @@ execute_slave_script(){
     res="fail"
     if [ -f ${CURPATH}/$testcase_id/runTest-slave.sh ];then
         cd ${CURPATH}/$testcase_id
-        eval ./runTest-slave.sh "$testcase_arg"
-        [ $? -eq 0 ] && res="success"
+        eval ./runTest-slave.sh "$testcase_arg" && res="success"
     fi
 }
 

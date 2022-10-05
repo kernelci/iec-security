@@ -37,8 +37,7 @@ do
     if echo "$SKIP_TESTS" | grep -qw "$dir";then
         res="skip"
     elif [ -f ./runTest-master.sh ]; then
-	    eval ./runTest-master.sh init && eval ./runTest-master.sh run
-	    [ $? -eq 0 ] && res="pass" || res="fail"
+	    eval ./runTest-master.sh init && eval ./runTest-master.sh run && res="pass" || res="fail"
 	    eval ./runTest-master.sh clean
     fi
 	which lava-test-case > /dev/null && lava-test-case ${dir} --result $res
