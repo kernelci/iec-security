@@ -8,20 +8,16 @@ set -e
 
 TEST_CASE_NAME="TC_CR2.6_1: Remote session termination"
 
-SSHD_CONFIG="/etc/ssh/sshd_config"
+SHELL_CONFIG="/etc/bash.bashrc"
+
 preTest() {
     check_root
     check_pkgs_installed "openssh-server" "openssh-client" "sshpass"
 
-    # Backup ssh configuration file
-    cp $SSHD_CONFIG sshd_config.bkp
+    # Configure remote session termination
+    echo -e 'export TMOUT=5' >> ${SHELL_CONFIG}
 
-    # Configure ssh for remote session termination
-    sed -i "/ClientAliveInterval/c ClientAliveInterval 5"  "${SSHD_CONFIG}"
-    sed -i "/ClientAliveCountMax/c ClientAliveCountMax 1" "${SSHD_CONFIG}"
-    service sshd restart
-
-    # Create the users for the test case
+   # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
 }
 
@@ -36,8 +32,8 @@ runTest() {
     fi
 
     # Check remote session termination
-    sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "sleep 6s" > output.log 2>&1 || echo
-    if grep -q "closed by remote host" output.log; then
+    timeout 7 sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 > output.log 2>&1 || echo
+    if grep -q "timed out waiting for input: auto-logout" output.log; then
         info_msg "Remote session is closed by host, after timeout"
     else
         error_msg "Remote session is not closed by host after timeout"
@@ -50,13 +46,11 @@ postTest() {
 
     [ -f output.log ] && rm -f output.log
 
-    # Restore previous configuration
-    [ -f sshd_config.bkp ] && mv sshd_config.bkp $SSHD_CONFIG
+    # Remove remote session termination configuration.
+    sed -i '/^export TMOUT=/d' ${SHELL_CONFIG}
 
-    # Delete the user that was created for the test
+    # Delete the user
     del_user $USER1_NAME
-
-    service sshd restart
 }
 
 # Main
