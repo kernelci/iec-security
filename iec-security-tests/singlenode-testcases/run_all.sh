@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CURPATH=`pwd`
+CURPATH=$(pwd)
 
 RESULT_FILE="./result_file.txt"
 if [ -f ${RESULT_FILE} ]; then
@@ -15,17 +15,16 @@ do
     res="skip"
     dir=${f}
     echo $dir
-    cd ${CURPATH}/${dir}
+    cd ${CURPATH}/${dir} || exit
     START=$(date +%s)
     if echo "$SKIP_TESTS" | grep -qw "$dir";then
         res="skip"
     elif [ -f ./runTest.sh ]; then
-        eval ./runTest.sh init && eval ./runTest.sh run
-        [ $? -eq 0 ] && res="pass" || res="fail"
+        eval ./runTest.sh init && eval ./runTest.sh run && res="pass" || res="fail"
         eval ./runTest.sh clean
     fi
     END=$(date +%s)
-    DIFF=$(( $END - $START ))
+    DIFF=$(( END - START ))
     echo "${dir}+$res+$DIFF" >> ${CURPATH}/${RESULT_FILE}
     which lava-test-case > /dev/null && lava-test-case ${dir} --result $res
 done

@@ -21,7 +21,7 @@ preTest() {
     sed -i '/^pool/ s/^/#/' $CHRONY_CONF
     service chrony restart
 
-    if [ ! -z $REMOTE_CHRONY_PORT ]; then
+    if [ -n "$REMOTE_CHRONY_PORT" ]; then
         echo "Chrony port is configured to: $REMOTE_CHRONY_PORT"
         ADD_PORT="port  $REMOTE_CHRONY_PORT"
     fi
@@ -36,8 +36,8 @@ runTest() {
     chronyc sources -a | cat
 
     info_msg "Change the time in DUT to some different time"
-    ch_date=$(date -s "$(date | sed "s/$(date +"%Y")/$(expr $(date +"%Y") + 10)/g")")
-    echo "modified date  "${ch_date}""
+    ch_date=$(date -s "$(date | sed "s/$(date +"%Y")/$(( $(date +"%Y") + 10 ))/g")")
+    echo "modified date  ${ch_date}"
     ch_year="$(date +"%Y")"
     echo $ch_year
 

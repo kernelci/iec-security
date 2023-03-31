@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . ../lib/multinode-comm-lib
-CURPATH=`pwd`
+CURPATH=$(pwd)
 
 echo "Remote ip addr: $SERVER_IP"
 echo "Remote username: $SERVER_UN"
@@ -21,13 +21,12 @@ for dir in *;
 do
 	[ ! -d ${CURPATH}/${dir} ] && continue
 	echo $dir
-	cd ${CURPATH}/${dir}
+	cd ${CURPATH}/${dir} || exit
 	res="skip"
     if echo "$SKIP_TESTS" | grep -qw "$dir";then
         res="skip"
     elif [ -f ./runTest-client.sh ]; then
-	    eval ./runTest-client.sh init && eval ./runTest-client.sh run
-	    [ $? -eq 0 ] && res="pass" || res="fail"
+	    eval ./runTest-client.sh init && eval ./runTest-client.sh run && res="pass" || res="fail"
 	    eval ./runTest-client.sh clean
     fi
 	which lava-test-case > /dev/null && lava-test-case ${dir} --result $res

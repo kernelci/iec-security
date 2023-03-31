@@ -2,7 +2,8 @@
 
 # $1: key
 read_lava_multinode_resp(){
-        local value=$(cat /tmp/lava_multi_node_cache.txt | grep "$1" | cut -d = -f 2)
+        local value
+        value=$(< /tmp/lava_multi_node_cache.txt grep "$1" | cut -d = -f 2)
         echo $value
 }
 
@@ -32,7 +33,7 @@ get_next_msgid(){
 
 # $1: message to slave
 send_msg_to_slave(){
-        msg=$(pack_args $@)
+        msg=$(pack_args "$@")
         get_next_msgid
         lava-send $MSGID msg="$msg"
         lava-wait $MSGID-resp
@@ -59,7 +60,7 @@ init_msgid(){
 
 wait_for_master_msg(){
         local cur_msgid="msg$MSGID_IDX"
-        MSGID_IDX=`expr $MSGID_IDX + 1`
+        MSGID_IDX=$((MSGID_IDX + 1))
         local next_msgid="msg$MSGID_IDX"
 
         lava-wait $cur_msgid
@@ -70,7 +71,7 @@ wait_for_master_msg(){
 
 # $1: response message
 send_ack_to_master(){
-        msg=$(pack_args $@)
+        msg=$(pack_args "$@")
         lava-send $PREV_MSGID-resp resp="$msg"
 }
 

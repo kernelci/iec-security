@@ -44,7 +44,7 @@ runTest() {
     done
 
     # Verify if the concurrent session for more than a limit is Success or not
-    sshpass -p ${USER1_PSWD} ssh -tt ${USER1_NAME}@127.0.0.1 'whoami' > output.txt | true
+    sshpass -p ${USER1_PSWD} ssh -tt ${USER1_NAME}@127.0.0.1 'whoami' > output.txt || true
     ! grep -ic "Too many logins" output.txt && error_msg "Fail: Accepting concurrent sessions even after reaaching limit"
 
     info_msg "PASS"

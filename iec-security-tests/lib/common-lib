@@ -29,10 +29,9 @@ check_root() {
 }
 
 check_pkgs_installed() {
-	pkgs="$@"
+	pkgs="$*"
 	for pkg in ${pkgs};do
-		dpkg -s "${pkg}" >/dev/null
-		if [ $? -eq 0 ]; then
+		if dpkg -s "${pkg}" >/dev/null; then
 			info_msg "${pkg} Package  is installed!"
 		else
 			warn_msg "${pkg} Package  is NOT installed!"
@@ -80,7 +79,7 @@ del_user() {
 		while [ $i -lt 30 ]; do
 			if ps -U "${USER}" -u "${USER}" > /dev/null;then
 				warn_msg "${USER} is used by another process:"
-				echo "$(ps -U ${USER} -u ${USER})"
+				ps -U ${USER} -u ${USER}
 			else
 				TIMEOUT=0
 				break

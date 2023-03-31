@@ -16,9 +16,11 @@ if [ "$1" = "init" ]; then
 
     # Take backup of configuration
     cp ${CHRONY_CONF} ./chrony.conf.bkp
-    echo local stratum 10 >> ${CHRONY_CONF}
-    echo manual >> ${CHRONY_CONF}
-    echo "allow $REMOTE_IP" >> ${CHRONY_CONF}
+   {
+    echo local stratum 10
+    echo manual
+    echo "allow $REMOTE_IP"
+   } >> ${CHRONY_CONF}
 
     service chrony restart
 
