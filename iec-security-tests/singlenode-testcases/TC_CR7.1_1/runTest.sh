@@ -36,8 +36,7 @@ runTest() {
     sleep 1s
 
     info_msg "Check syslog wheather ip rules dropping flooded messages"
-    sed -n "/$log_msg/,/$DROP_LOG_PREFIX/p" $SYSLOG
-    log_msg_cnt=$(sed -n "/$log_msg/,/$DROP_LOG_PREFIX/p" $SYSLOG | wc -l)
+    log_msg_cnt=$(sed -n "/$log_msg/,/$DROP_LOG/p" $SYSLOG | wc -l)
     if [ $log_msg_cnt -gt 1 ]; then
         info_msg "Successfully droped DoS attacks"
     else
