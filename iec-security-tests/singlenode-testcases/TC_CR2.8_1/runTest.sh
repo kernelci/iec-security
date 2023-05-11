@@ -46,7 +46,7 @@ runTest() {
     auditctl -w /etc/hostname -p wa -k control-system-event
 
     # to record any access control failures
-    auditctl -a always,exit -F arch=b64 -S all -F exit=-EACCES -k file_access_denied
+    auditctl -a always,exit -S all -F exit=-EACCES -k file_access_denied
 
     start_time="$(date +"%m/%d/%y %T")"
     cnfg_changes_bfr=$(ausearch -i --start $start_time -m USYS_CONFIG,CONFIG_CHANGE | wc -l)
@@ -61,7 +61,7 @@ runTest() {
     echo "$USER1_PSWD" | su - $USER1_NAME -c "cat /etc/shadow | cat"
 
     # Do some config changes
-    auditctl -a always,exit -F arch=b32 -S all -F key=control-system-event
+    auditctl -a always,exit -S adjtimex,settimeofday -F key=control-system-event
 
     cnfg_changes_aft=$(ausearch -i --start $start_time -m USYS_CONFIG,CONFIG_CHANGE | wc -l)
     cntrl_sys_evnts_aft=$(ausearch -i --start $start_time -k "control-system-event" | wc -l)

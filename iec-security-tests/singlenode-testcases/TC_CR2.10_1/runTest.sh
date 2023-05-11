@@ -43,7 +43,7 @@ runTest() {
     # add audit rules to fill the audit storage
     auditctl -D
     auditctl -w /etc/passwd -p r -k control-system-event
-    auditctl -a always,exit -F arch=b64 -S all -k file_access
+    auditctl -a always,exit -S all -k file_access
 
     info_msg "Execute command to trigger the audit events"
     log_msg="start-test-$(date +%s)"
