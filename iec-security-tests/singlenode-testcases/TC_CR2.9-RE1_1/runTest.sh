@@ -53,7 +53,7 @@ runTest() {
     # add audit rules to fill the audit storage
     auditctl -D
     auditctl -w /etc/passwd -p r -k control-system-event
-    auditctl -a always,exit -F arch=b64 -S creat,open,openat,open_by_handle_at,truncate,ftruncate -k file_access_denied
+    auditctl -a always,exit -S all -k file_access_denied
     cat /etc/passwd > /dev/null
     # trigger audit events
 
