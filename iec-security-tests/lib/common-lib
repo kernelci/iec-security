@@ -50,7 +50,7 @@ add_user() {
 
 	info_msg "Creating user '${USER}' ----"
 	if /usr/sbin/useradd --shell /bin/bash --create-home \
-		-p $(openssl passwd -crypt $USERPSWD) "${USER}";then
+		-p $(openssl passwd -1 $USERPSWD) "${USER}";then
 		info_msg "user: '${USER}' created successfully"
 	else
 		error_msg "Failed to create user: '${USER}'"
