@@ -1,6 +1,11 @@
 #!/bin/bash
 # TC_CR1.7_1: Validate Strength of password-based authentication
 #
+# This script verifies whether the system uses strong password for the user
+# accounts.
+# strong password should have minimum 8 characters, 1 lower case, 1 upper case
+#  1 digit and 1 symbol.
+
 set -e
 . ../../lib/common-lib
 . ../../lib/common-variables
@@ -8,38 +13,67 @@ set -e
 TEST_CASE_NAME="TC_CR1.7_1: Validate Strength of password-based authentication"
 
 PAM_FILE="/etc/pam.d/common-password"
-pam_cracklib_config="password  requisite    pam_cracklib.so \
-    retry=3 minlen=8 maxrepeat=3 ucredit=-1 lcredit=-1 \
-    dcredit=-1 ocredit=-1 difok=3 gecoscheck=1 reject_username \
-    enforce_for_root"
+
+if [ -e /lib/*/security/pam_passwdqc.so ]; then
+        bad_passwd_msg="Weak password"
+        package="libpam-passwdqc"
+else
+        bad_passwd_msg="BAD PASSWORD"
+        package="libpam-cracklib"
+fi
 
 preTest() {
     check_root
-    check_pkgs_installed "libpam-cracklib" "libpam-runtime" "passwd"
+    check_pkgs_installed "$package" "libpam-runtime" "passwd"
 
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
-
-    # If pam_craclib already configured, comment that temporarily
-    sed -i '/pam_cracklib.so/ s/^/#/' $PAM_FILE
-
-    # configure pam to  enforce password strength
-    sed -i "0,/^password.*/s/^password.*/${pam_cracklib_config}\n&/" ${PAM_FILE}
 }
 
 runTest() {
-    strong_pwd="Hello@4567"
-    weak_pwd="test"
 
+    # Verify if system accept the weak password with one character class
+    weak_pwd="testpassword"
     cmd_msg=$(echo "$USER1_NAME:$weak_pwd" | sudo chpasswd 2>&1 | cat)
-    if echo $cmd_msg | grep -q "BAD PASSWORD: it is too short"; then
-        info_msg "Password change is not accepting week password"
+    if echo $cmd_msg | grep -q "$bad_passwd_msg"; then
+        info_msg "Password $weak_pwd is not accepted"
     else
-        error_msg "FAIL: Accepting week passwords"
+        error_msg "FAIL: Accepting weak password $weak_pwd"
     fi
 
-    cmd_msg=$(echo "$USER1_NAME:$strong_pwd" | sudo chpasswd 2>&1 | cat)
-    if [ "" = "$cmd_msg" ];then
+    # Verify if system accept the weak password with two character classes
+    weak_pwd="testpasswd123"
+    cmd_msg=$(echo "$USER1_NAME:$weak_pwd" | sudo chpasswd 2>&1 | cat)
+    if echo $cmd_msg | grep -q "$bad_passwd_msg"; then
+        info_msg "Password $weak_pwd is not accepted"
+    else
+        error_msg "FAIL: Accepting weak password $weak_pwd"
+    fi
+
+    # Verify if system accept the weak password with three character classes
+    weak_pwd="testpasswd@123"
+    cmd_msg=$(echo "$USER1_NAME:$weak_pwd" | sudo chpasswd 2>&1 | cat)
+    if echo $cmd_msg | grep -q "$bad_passwd_msg"; then
+        info_msg "Password $weak_pwd is not accepted"
+    else
+        error_msg "FAIL: Accepting weak password $weak_pwd"
+    fi
+
+    # Verify if system accept the weak password with four character classes
+    # and password length < 8
+    weak_pwd="TEst@12"
+    cmd_msg=$(echo "$USER1_NAME:$weak_pwd" | sudo chpasswd 2>&1 | cat)
+    if echo $cmd_msg | grep -q "$bad_passwd_msg"; then
+        info_msg "Password $weak_pwd is not accepted"
+    else
+        error_msg "FAIL: Accepting weak password $weak_pwd"
+    fi
+
+    # Verify if system accept the strong password with four character classes
+    # and password length = 8
+    strong_pwd="HEllo@4567"
+    echo "$USER1_NAME:$strong_pwd" | sudo chpasswd 2>&1
+    if [ $? = "0" ];then
         info_msg "Password is changed with strong password"
     else
         error_msg "FAIL: Cannot change password"
@@ -49,11 +83,6 @@ runTest() {
 }
 
 postTest() {
-    # remove the configuration line that was set
-    sed -i "/$pam_cracklib_config/d" ${PAM_FILE}
-
-    # uncomment the pam_cracklib that was commented earlier
-    sed -i '/pam_cracklib.so/ s/^#//' $PAM_FILE
 
     # delete the user created in the test
     del_user $USER1_NAME
