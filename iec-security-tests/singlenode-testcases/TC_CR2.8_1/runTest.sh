@@ -46,7 +46,7 @@ runTest() {
     auditctl -w /etc/hostname -p wa -k control-system-event
 
     # to record any access control failures
-    auditctl -a always,exit -S all -F exit=-EACCES -k file_access_denied
+    auditctl -a always,exit -S openat,open_by_handle_at,truncate,ftruncate -F exit=-EACCES -k file_access_denied
 
     start_time="$(date +"%m/%d/%y %T")"
     cnfg_changes_bfr=$(ausearch -i --start $start_time -m USYS_CONFIG,CONFIG_CHANGE | wc -l)
