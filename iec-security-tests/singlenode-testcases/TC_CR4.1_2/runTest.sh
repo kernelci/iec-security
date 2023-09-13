@@ -27,7 +27,7 @@ runTest() {
     fi
 
     # Check /home partition is crypto LUKS type
-    disktype=$(blkid -t PARTLABEL=home | awk '{print $3}')
+    disktype=$(blkid -t PARTLABEL=home -s TYPE -o value)
     if "${disktype}" == "crypto_LUKS"; then
         info_msg "Confirmed the crypt partitions"
     else
