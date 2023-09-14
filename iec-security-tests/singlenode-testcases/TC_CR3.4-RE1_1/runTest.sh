@@ -9,7 +9,7 @@ set -e
 TEST_CASE_NAME="TC_CR3.4-RE1_1: Authenticity of software and information"
 
 AIDE_CONF_FILE="/etc/aide/aide.conf"
-AIDE_DB_FILE="/var/lib/aide/aide.db"
+AIDE_DB_DIR="/var/lib/aide"
 
 CONFIG_DATA="/etc/passwd VarFile"
 
@@ -49,14 +49,14 @@ runTest() {
     fi
 
     if ! echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
-                            >> $AIDE_DB_FILE"; then
+                            >> $AIDE_DB_DIR"; then
         info_msg "User got no permission to acces aide db file"
     else
         error_msg "FAIL: User has permission to access aide db file"
     fi
 
     # Give access permissions to user
-    setfacl -m u:"${USER1_NAME}":rw "${AIDE_DB_FILE}"
+    setfacl -m u:"${USER1_NAME}":rw "${AIDE_DB_DIR}"
     setfacl -m u:"${USER1_NAME}":rw "${AIDE_CONF_FILE}"
 
     # check if aide configuration file can be accessed by autherized user
@@ -68,7 +68,7 @@ runTest() {
     fi
 
     if echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
-                            >> $AIDE_DB_FILE"; then
+                            >> $AIDE_DB_DIR/aide.db"; then
         info_msg "User got permission to acces aide db file"
     else
         error_msg "FAIL: User has not got permission to access aide db file"
@@ -79,7 +79,7 @@ runTest() {
 
 postTest() {
 
-    setfacl -nb ${AIDE_DB_FILE}
+    setfacl -nb ${AIDE_DB_DIR}
     setfacl -nb ${AIDE_CONF_FILE}
 
     # restore original aide configuration
