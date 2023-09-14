@@ -41,14 +41,14 @@ runTest() {
     # by checking the authenticity of the aide software and the its configuration
 
     # check if aide configuration file can be accessed by unautherized user
-    if ! echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
+    if ! echo "$USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
                             >> $AIDE_CONF_FILE"; then
         info_msg "User got no permission to acces the aide configuration"
     else
         error_msg "FAIL: User has permission to access aide configuration file"
     fi
 
-    if ! echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
+    if ! echo "$USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
                             >> $AIDE_DB_DIR"; then
         info_msg "User got no permission to acces aide db file"
     else
@@ -60,14 +60,14 @@ runTest() {
     setfacl -m u:"${USER1_NAME}":rw "${AIDE_CONF_FILE}"
 
     # check if aide configuration file can be accessed by autherized user
-    if echo "USER1_PSWD" | su - $USER1_NAME -c "echo $CONFIG_DATA \
+    if echo "$USER1_PSWD" | su - $USER1_NAME -c "echo $CONFIG_DATA \
                             >> $AIDE_CONF_FILE"; then
         info_msg "User got permission to acces the aide configuration"
     else
         error_msg "FAIL: User has not got permission to access the configuration file"
     fi
 
-    if echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
+    if echo "$USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
                             >> $AIDE_DB_DIR/aide.db"; then
         info_msg "User got permission to acces aide db file"
     else
