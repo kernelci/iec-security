@@ -56,7 +56,7 @@ runTest() {
     fi
 
     # Give access permissions to user
-    setfacl -m u:"${USER1_NAME}":rw "${AIDE_DB_DIR}"
+    setfacl -R -m u:"${USER1_NAME}":rwx "${AIDE_DB_DIR}"
     setfacl -m u:"${USER1_NAME}":rw "${AIDE_CONF_FILE}"
 
     # check if aide configuration file can be accessed by autherized user
