@@ -9,7 +9,7 @@ set -e
 TEST_CASE_NAME="TC_CR3.4-RE1_1: Authenticity of software and information"
 
 AIDE_CONF_FILE="/etc/aide/aide.conf"
-AIDE_DB_FILE="/var/lib/aide/aide.db"
+AIDE_DB_DIR="/var/lib/aide"
 
 CONFIG_DATA="/etc/passwd VarFile"
 
@@ -41,34 +41,34 @@ runTest() {
     # by checking the authenticity of the aide software and the its configuration
 
     # check if aide configuration file can be accessed by unautherized user
-    if ! echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
+    if ! echo "$USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
                             >> $AIDE_CONF_FILE"; then
         info_msg "User got no permission to acces the aide configuration"
     else
         error_msg "FAIL: User has permission to access aide configuration file"
     fi
 
-    if ! echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
-                            >> $AIDE_DB_FILE"; then
+    if ! echo "$USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
+                            >> $AIDE_DB_DIR"; then
         info_msg "User got no permission to acces aide db file"
     else
         error_msg "FAIL: User has permission to access aide db file"
     fi
 
     # Give access permissions to user
-    setfacl -m u:"${USER1_NAME}":rw "${AIDE_DB_FILE}"
+    setfacl -R -m u:"${USER1_NAME}":rwx "${AIDE_DB_DIR}"
     setfacl -m u:"${USER1_NAME}":rw "${AIDE_CONF_FILE}"
 
     # check if aide configuration file can be accessed by autherized user
-    if echo "USER1_PSWD" | su - $USER1_NAME -c "echo $CONFIG_DATA \
+    if echo "$USER1_PSWD" | su - $USER1_NAME -c "echo $CONFIG_DATA \
                             >> $AIDE_CONF_FILE"; then
         info_msg "User got permission to acces the aide configuration"
     else
         error_msg "FAIL: User has not got permission to access the configuration file"
     fi
 
-    if echo "USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
-                            >> $AIDE_DB_FILE"; then
+    if echo "$USER1_PSWD" | su - $USER1_NAME -c "echo '$CONFIG_DATA' \
+                            >> $AIDE_DB_DIR/aide.db"; then
         info_msg "User got permission to acces aide db file"
     else
         error_msg "FAIL: User has not got permission to access aide db file"
@@ -79,7 +79,7 @@ runTest() {
 
 postTest() {
 
-    setfacl -nb ${AIDE_DB_FILE}
+    setfacl -nb ${AIDE_DB_DIR}
     setfacl -nb ${AIDE_CONF_FILE}
 
     # restore original aide configuration
