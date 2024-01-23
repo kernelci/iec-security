@@ -9,7 +9,7 @@ set -e
 TEST_CASE_NAME="TC_CR1.8_1: Validate Authentication with public key infrastructure"
 
 tmp_dir="tmp_ssh_cert"
-sshd_config="/etc/ssh/sshd_config"
+sshd_config="/etc/ssh/sshd_config.d/ssh-pam-remote.conf"
 
 preTest() {
     check_root
