@@ -11,7 +11,7 @@ TEST_CASE_NAME="Validate Human user identification and authentication from remot
 
 preTest() {
     check_root
-    check_pkgs_installed "passwd" "login" "openssh-server" "openssh-client" "sshpass"
+    check_pkgs_installed "passwd" "login" "openssh-server" "openssh-client"
 
     # Create users required for the test
     create_test_user $USER1_NAME $USER1_PSWD
@@ -19,7 +19,7 @@ preTest() {
 
 runTest() {
     # Login and verify the username
-    user_name=$(sshpass -p "${USER1_PSWD}" ssh -o StrictHostKeyChecking=no ${USER1_NAME}@127.0.0.1 "whoami")
+    user_name=$(echo $USER1_PSWD | ../../lib/sshpass.sh ssh -o StrictHostKeyChecking=no ${USER1_NAME}@127.0.0.1 "whoami")
     if [ "$user_name" = "$USER1_NAME" ];then
         info_msg "PASS"
     else

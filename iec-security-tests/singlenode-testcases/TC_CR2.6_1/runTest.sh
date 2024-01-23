@@ -12,7 +12,7 @@ SHELL_CONFIG="/etc/bash.bashrc"
 
 preTest() {
     check_root
-    check_pkgs_installed "openssh-server" "openssh-client" "sshpass"
+    check_pkgs_installed "openssh-server" "openssh-client"
 
     # Configure remote session termination
     echo -e 'export TMOUT=5' >> ${SHELL_CONFIG}
@@ -24,7 +24,7 @@ preTest() {
 runTest() {
 
     # Check User can access the account
-    msg=$(sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
+    msg=$(echo $USER1_PSWD | ../../lib/./sshpass.sh ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
     if [ "$msg" = "$USER1_NAME" ]; then
         info_msg "User can access the remote session"
     else
@@ -32,7 +32,7 @@ runTest() {
     fi
 
     # Check remote session termination
-    timeout 7 sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 > output.log 2>&1 || echo
+    timeout 7 echo $USER1_PSWD | ../../lib/./sshpass.sh ssh -tt -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 > output.log 2>&1 || echo
     if grep -q "timed out waiting for input: auto-logout" output.log; then
         info_msg "Remote session is closed by host, after timeout"
     else
