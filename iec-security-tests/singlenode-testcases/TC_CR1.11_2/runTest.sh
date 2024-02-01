@@ -31,11 +31,10 @@ PAM_FILE="/etc/pam.d/common-auth"
 
 preTest() {
     check_root
-    check_pkgs_installed "libpam-modules" "openssh-server" "openssh-client" "sshpass"
+    check_pkgs_installed "libpam-modules" "openssh-server" "openssh-client"
 
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
-    create_test_user $USER2_NAME $USER2_PSWD
 
     # Take backup of pam configuration
     cp $PAM_FILE pam-common-auth.bkp
@@ -54,14 +53,12 @@ preTest() {
 
 runTest() {
     wrong_pwd="wrongpassword"
-    user1_successful_login="sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 \"whoami\""
-    user1_unsuccessful_login="sshpass -p '$wrong_pwd' ssh -o StrictHostKeyChecking=no '$USER1_NAME'@127.0.0.1 \"whoami\""
 
     # Reset the attempts counter.
     $PAM_TALLY_BIN --user "${USER1_NAME}" --reset
 
     # check if account is login successful
-    msg=$(echo $USER2_PSWD | su - $USER2_NAME -c "$user1_successful_login")
+    msg=$(echo $USER1_PSWD | ../../lib/sshpass.sh ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
     if [ "$msg" = "$USER1_NAME" ]; then
         info_msg "account is Logged in '$USER1_NAME'"
     else
@@ -69,8 +66,8 @@ runTest() {
     fi
 
     # attempt unsuccessful login attempts
-    msg=$(echo $USER2_PSWD | su - $USER2_NAME -c "$user1_unsuccessful_login | cat")
-    if [ "$msg" != "$USER1_NAME" ];then
+    msg=$(echo $wrong_pwd | ../../lib/sshpass.sh ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
+    if [ "$msg" != "$USER1_NAME" ]; then
         info_msg "Attempted unsuccessful login '$USER1_NAME'"
     else
         error_msg "FAIL: unable to attempt unsuccessful login '$USER1_NAME'"
@@ -79,7 +76,7 @@ runTest() {
     $PAM_TALLY_BIN --user "${USER1_NAME}"
 
     # check if account is locked due to unsuccessful login attempts
-    msg=$(echo $USER2_PSWD | su - $USER2_NAME -c "$user1_successful_login | cat")
+    msg=$(echo $USER1_PSWD | ../../lib/sshpass.sh ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
     if [ "$msg" != "$USER1_NAME" ]; then
         info_msg "'$USER1_NAME' account is locked due to unsuccessful login attempts"
     else
@@ -90,7 +87,7 @@ runTest() {
     sleep 10s
 
     # check if account is unlocked
-    msg=$(echo $USER2_PSWD | su - $USER2_NAME -c "$user1_successful_login | cat")
+    msg=$(echo $USER1_PSWD | ../../lib/sshpass.sh ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
     if [ "$msg" = "$USER1_NAME" ]; then
         info_msg "'$USER1_NAME' account is unlocked"
     else
@@ -108,7 +105,6 @@ postTest() {
 
     # delete the user created in the test
     del_user $USER1_NAME
-    del_user $USER2_NAME
 }
 
 # Main
