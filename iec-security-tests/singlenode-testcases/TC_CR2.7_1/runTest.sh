@@ -13,7 +13,7 @@ CONCURRENT_SESSIONS_ALLOWED=2
 
 preTest() {
     check_root
-    check_pkgs_installed "libpam-modules" "openssh-server" "openssh-client" "sshpass"
+    check_pkgs_installed "libpam-modules" "openssh-server" "openssh-client"
 
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
@@ -28,7 +28,7 @@ preTest() {
 runTest() {
 
     # Check User can access the account
-    msg=$(sshpass -p $USER1_PSWD ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
+    msg=$(echo $USER1_PSWD | ../../lib/sshpass.sh ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
     if [ "$msg" = "$USER1_NAME" ]; then
         info_msg "User can access the remote session"
     else
@@ -37,14 +37,14 @@ runTest() {
 
     # Establish concurrent sessions
     for i in $(seq 1 $CONCURRENT_SESSIONS_ALLOWED);do
-        sshpass -p ${USER1_PSWD} ssh -tt -o StrictHostKeyChecking=no ${USER1_NAME}@127.0.0.1 'whoami && sleep 5s' > output$i.txt &
+        echo $USER1_PSWD | ../../lib/sshpass.sh ssh -tt -o StrictHostKeyChecking=no ${USER1_NAME}@127.0.0.1 'whoami && sleep 5s' > output$i.txt &
         sleep 1s
         #! grep -c "${USER1_NAME}" output$i.txt && error_msg "Concurrent connection failed"
         info_msg "Connected to remote session $i"
     done
 
     # Verify if the concurrent session for more than a limit is Success or not
-    sshpass -p ${USER1_PSWD} ssh -tt ${USER1_NAME}@127.0.0.1 'whoami' > output.txt || true
+    echo $USER1_PSWD | ../../lib/sshpass.sh ssh -tt ${USER1_NAME}@127.0.0.1 'whoami' > output.txt || true
     ! grep -ic "Too many logins" output.txt && error_msg "Fail: Accepting concurrent sessions even after reaaching limit"
 
     info_msg "PASS"

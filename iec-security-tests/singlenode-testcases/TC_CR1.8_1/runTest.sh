@@ -9,7 +9,7 @@ set -e
 TEST_CASE_NAME="TC_CR1.8_1: Validate Authentication with public key infrastructure"
 
 tmp_dir="tmp_ssh_cert"
-sshd_config="/etc/ssh/sshd_config"
+sshd_config="/etc/ssh/sshd_config.d/ssh-pam-remote.conf"
 
 preTest() {
     check_root
@@ -32,7 +32,7 @@ runTest() {
     ssh-keygen -q -t rsa -P '' -f $tmp_dir/id_rsa <<< y
 
     # copy certificate to the user
-    sshpass -p $USER1_PSWD ssh-copy-id \
+    echo $USER1_PSWD | ../../lib/sshpass.sh ssh-copy-id \
                                 -o StrictHostKeyChecking=no \
                                 -i $tmp_dir/id_rsa  \
                                 $USER1_NAME@127.0.0.1
