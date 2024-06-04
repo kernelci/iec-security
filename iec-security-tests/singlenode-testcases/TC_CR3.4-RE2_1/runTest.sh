@@ -11,7 +11,6 @@ TEST_CASE_NAME="TC_CR3.4-RE2_1: Automated notification of integrity violations"
 SAMPLE_APP_DIR="$(pwd)/testapp"
 TEST_FILE="$SAMPLE_APP_DIR/test.conf"
 AIDE_CONF_FILE="/etc/aide/aide.conf"
-SYSLOG="/var/log/syslog"
 
 AIDE_FOUND_NO_DIFF_MSG="AIDE found NO differences between database and filesystem. Looks okay!!"
 AIDE_FOUND_DIFF_MSG="AIDE found differences between database and filesystem!!"
@@ -74,16 +73,16 @@ runTest() {
         error_msg "FAIL: AIDE could not detect integrity failures"
     fi
 
-    # report integrity failures to syslog
+    # report integrity failures to journal logs
     # alt: can also report to mail
     log_msg="start-test-$(date +%s)"
     logger $log_msg
     aide -c $AIDE_CONF_FILE -u > /dev/null | cat
 
     sleep 1s
-    log_msg_cnt=$(sed -n "/$log_msg/,/$AIDE_FOUND_DIFF_MSG/p" $SYSLOG | wc -l)
+    log_msg_cnt=$(journalctl | sed -n "/$log_msg/,/$AIDE_FOUND_DIFF_MSG/p" | wc -l)
     if [ $log_msg_cnt -gt 1 ]; then
-        info_msg "Found aide report in syslog"
+        info_msg "Found aide report in journal logs"
     else
         error_msg "FAIL: Aide could not reprot"
     fi

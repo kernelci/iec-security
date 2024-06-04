@@ -11,11 +11,10 @@ TEST_CASE_NAME="TC_CR2.10_1: Response to audit processing failures \
 - maintain essential functions"
 
 AUDIT_CONF="/etc/audit/auditd.conf"
-SYSLOG="/var/log/syslog"
 
 preTest() {
     check_root
-    check_pkgs_installed "syslog-ng-core" "auditd"
+    check_pkgs_installed "auditd"
 
     # Create the users for the test case
     create_test_user $USER1_NAME $USER1_PSWD
@@ -26,11 +25,8 @@ preTest() {
     # Configure audit storage values
     sed -i 's/^num_logs =.*/num_logs = 1/' $AUDIT_CONF
     sed -i 's/^max_log_file =.*/max_log_file = 1/' $AUDIT_CONF
-    sed -i 's/^max_log_file_action =.*/max_log_file_action = syslog/' $AUDIT_CONF
     sed -i 's/^space_left =.*/space_left = 20/' $AUDIT_CONF
-    sed -i 's/^space_left_action =.*/space_left_action = syslog/' $AUDIT_CONF
     sed -i 's/^admin_space_left =.*/admin_space_left = 10/' $AUDIT_CONF
-    sed -i 's/^admin_space_left_action =.*/admin_space_left_action = syslog/' $AUDIT_CONF
 
     # start audit service
     auditctl -e 1
@@ -61,7 +57,7 @@ runTest() {
 
     sleep 1s
     audit_failure_msg="Audit daemon log file is larger than max size"
-    log_msg_cnt=$(sed -n "/$log_msg/,/$audit_failure_msg/p" $SYSLOG | wc -l)
+    log_msg_cnt=$(journalctl | sed -n "/$log_msg/,/$audit_failure_msg/p" | wc -l)
     if [ $log_msg_cnt -gt 1 ]; then
         info_msg "Warning message sent when Audit storage capacity is exceeded"
     else
