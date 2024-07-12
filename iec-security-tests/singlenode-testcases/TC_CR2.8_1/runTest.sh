@@ -27,9 +27,7 @@ preTest() {
     sed -i 's/^max_log_file =.*/max_log_file = 1/' $AUDIT_CONF
     sed -i 's/^max_log_file_action =.*/max_log_file_action = rotate/' $AUDIT_CONF
     sed -i 's/^space_left =.*/space_left = 20/' $AUDIT_CONF
-    sed -i 's/^space_left_action =.*/space_left_action = syslog/' $AUDIT_CONF
     sed -i 's/^admin_space_left =.*/admin_space_left = 10/' $AUDIT_CONF
-    sed -i 's/^admin_space_left_action =.*/admin_space_left_action = syslog/' $AUDIT_CONF
 
     auditctl -e 1
     service auditd restart
