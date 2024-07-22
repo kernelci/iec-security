@@ -12,15 +12,16 @@ TEST_CASE_NAME="TC_CR1.11_2: Unsuccessful remote login attempts - limit number"
 pam_tally2=( /lib/*-linux-gnu*/security/pam_tally2.so )
 if [ -f "${pam_tally2[0]}" ]; then
     PAM_TALLY_MODULE="pam_tally2.so"
-    PAM_TALLY_CONFIG="auth   required $PAM_TALLY_MODULE deny=1 unlock_time=10 \
+    PAM_TALLY_CONFIG="auth   required $PAM_TALLY_MODULE deny=1 unlock_time=20 \
                         \naccount required $PAM_TALLY_MODULE"
     PAM_TALLY_BIN="pam_tally2"
 else
     pam_faillock=( /lib/*-linux-gnu*/security/pam_faillock.so )
     if [ -f "${pam_faillock[0]}" ]; then
         PAM_TALLY_MODULE="pam_faillock.so"
-        PAM_TALLY_CONFIG="auth required $PAM_TALLY_MODULE preauth silent deny=1 unlock_time=10 \
-                        \nauth required $PAM_TALLY_MODULE authfail deny=1 unlock_time=10"
+        PAM_TALLY_CONFIG="auth required $PAM_TALLY_MODULE preauth silent deny=1 unlock_time=20 \
+                        \nauth required $PAM_TALLY_MODULE authfail deny=1 unlock_time=20 \
+                        \naccount required $PAM_TALLY_MODULE"
         PAM_TALLY_BIN="faillock"
     else
         echo "No suitable pam module found to lock failed login attempts"
@@ -83,8 +84,8 @@ runTest() {
         error_msg "FAIL: Account is not locked after unsuccessful login attempts"
     fi
 
-    info_msg "Sleep until unlock time complete 10s"
-    sleep 10s
+    info_msg "Sleep until unlock time complete 20s"
+    sleep 20s
 
     # check if account is unlocked
     msg=$(echo $USER1_PSWD | ../../lib/sshpass.sh ssh -o StrictHostKeyChecking=no $USER1_NAME@127.0.0.1 "whoami" | cat)
